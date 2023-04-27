@@ -12,7 +12,7 @@ function UDPServer(puerto: number) {
 
     server.on('message', function (msg: Buffer, info: RemoteInfo) {
         const fecha = new Date(Date.now())
-            .toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+            .toLocaleDateString('es-ES', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'})
         const ans = `Fecha: ${fecha} \nIP: ${info.address} \nPuerto: ${info.port}`
 
         server.send(ans, info.port, info.address, function (error) {
@@ -38,23 +38,31 @@ function UDPServer(puerto: number) {
 
 }
 
-function UDPCLient(puerto, direccion:string = '0.0.0.0') {
+async function UDPCLient(puerto, direccion: string = '0.0.0.0') {
 
-    const client = udp.createSocket('udp4');
-    const data = Buffer.from('ping');
+    return new Promise<string>((resolve, reject) => {
+        const client = udp.createSocket('udp4');
+        const data = Buffer.from('ping');
 
-    client.on('message', function (msg, info) {
-        console.log('Mensaje del servidor: \n' + msg.toString());
-        client.close();
-    });
-
-    client.send(data, puerto, direccion, function (error) {
-        if (error) {
+        client.on('message', function (msg, info) {
+            console.log('Mensaje del servidor: \n' + msg.toString());
+            resolve(msg.toString())
             client.close();
-        } else {
-            console.log('Mensaje Enviado');
-        }
-    });
+        });
+
+        client.on('error', (e) => {
+            reject(e)
+            client.close()
+        })
+
+        client.send(data, puerto, direccion, function (error) {
+            if (error) {
+                client.close();
+            } else {
+                console.log('Mensaje Enviado');
+            }
+        });
+    })
 }
 
 module.exports = {

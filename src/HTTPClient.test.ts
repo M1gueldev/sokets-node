@@ -12,5 +12,4 @@ test('Should get HEAD from URL', async () => {
     await  expect(a).toMatch(/ASP/)
     await  expect(b).toMatch(/UTF-8/)
     await  expect(c).toMatch(/URL Invalida/)
-
-}, 3000)
+})
